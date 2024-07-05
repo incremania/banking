@@ -1,24 +1,21 @@
-
-
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "mail.fundsapplicantsclaims.com", 
-  port: 465, 
-  secure: true, 
+  host: process.env.EMAIL_HOST_NAME,
+  port: 465,
+  secure: true,
   auth: {
-    user: "support@fundsapplicantsclaims.com",
-    pass: "@samorah5419", 
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASS,
   },
 });
-
 
 // Function to send email
 const sendEmail = async (to, subject, text, html) => {
   try {
     // Setup email data
     const mailOptions = {
-      from: "support@fundsapplicantsclaims.com",
+      from: process.env.EMAIL,
       to: to,
       subject: subject,
       text: text,
@@ -36,5 +33,3 @@ const sendEmail = async (to, subject, text, html) => {
 };
 
 module.exports = sendEmail;
-
-
