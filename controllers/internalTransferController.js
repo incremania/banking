@@ -24,12 +24,16 @@ const createInternalTransfer = async (req, res) => {
         .status(401)
         .json({ status: "unauthorized", error: "Invalid PIN" });
     }
- 
-    if(user.savings_balance < req.body.amount || user.savings_balance === 0 ) {
+
+    if(req.user.role !== 'admin') {
+ if(user.savings_balance < req.body.amount || user.savings_balance === 0 ) {
       return res
         .status(401)
         .json({ status: "unauthorized", error: "insufficient balance" });
     }
+    }
+ 
+   
     const internalTransfer = await InternalTransfer.create(req.body);
 
     const subject = "Crypto Transaction";

@@ -133,13 +133,13 @@ const getAllUser = async (req, res) => {
 
 const adminTransfer = async (req, res) => {
   try {
-    const { acct, amount, status, account } = req.body;
+    const { account_number, amount, status, account } = req.body;
 
     if (!acct || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ msg: "Invalid input data." });
     }
 
-    const user = await User.findOne({ account_number: acct });
+    const user = await User.findOne({ account_number });
     if (!user) {
       return res.status(404).json({ msg: "User not found." });
     }
