@@ -135,7 +135,7 @@ const adminTransfer = async (req, res) => {
   try {
     const { account_number, amount, status, account } = req.body;
 
-    if (!acct || isNaN(amount) || amount <= 0) {
+    if (!account_number || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ msg: "Invalid input data." });
     }
 
