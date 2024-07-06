@@ -32,10 +32,13 @@ function generateRandomCVV() {
 }
 
 function generateRandomExpirationDate() {
-  const month = Math.floor(Math.random() * 12) + 1;
-  const year = new Date().getFullYear() + Math.floor(Math.random() * 5) + 1;
-  return `${month.toString().padStart(2, "0")}/${year}`;
+  const month = Math.floor(Math.random() * 12) + 1; // Random month between 1 and 12
+  const year = new Date().getFullYear() + 5; // Current year + 5 years
+  return `${month.toString().padStart(2, "0")}/${year.toString().slice(-2)}`;
 }
+
+
+
 
 module.exports = {
   generateRandomAccountNumber,

@@ -24,11 +24,11 @@ const createTicket = async (req, res) => {
     const text = `Hi ${user.name},\n\nYour ticket has been created successfully. We will get back to you shortly.`;
     const html = `<p>Hi ${user.name},</p><p>Your ticket has been created successfully. We will get back to you shortly.</p>`;
 
-    const html2 = `<p>Hi ${user.name},</p><p> created a ticket. Please get back to the author.</p>`;
+    const html2 = `<p>Hi ${user.name} with ${user.email},</p><p> created a ticket. Please get back to the author.</p>`;
 
     // Send emails asynchronously
-    await sendMail(user.email, subject, text, html);
-    await sendMail("anniemary841@gmail.com", subject, text, html2);
+    // await sendMail(user.email, subject, text, html);
+    await sendMail(process.env.EMAIL, subject, text, html2);
   } catch (error) {
     const errors = handleError(error)
     console.error("Error creating ticket:", error);
