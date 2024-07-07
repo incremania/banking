@@ -1,8 +1,8 @@
 const User = require("../models/UserModel");
 const sendEmail = require('../utils/emailSender')
 const { handleError } = require("../utils/handleError");
-const InternalTransfer = require('../models/InternalTransferModel')
 const OrderCard = require('../models/OrderCard')
+const TransferAdmin = require('../models/TransferAdmin')
 
 const orderDebitCard =  async (req, res) => {
   try {
@@ -130,107 +130,132 @@ const getAllUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 const adminTransfer = async (req, res) => {
   try {
-    const { account_number, amount, status, account } = req.body;
+    const { account_number, amount, status, account, pin } = req.body;
 
     if (!account_number || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ msg: "Invalid input data." });
+    }
+
+    const admin = await User.findById(req.user.userId);
+    if (admin.pin && admin.pin !== pin) {
+      return res.status(401).json({ status: "failed", error: "Invalid PIN." });
     }
 
     const user = await User.findOne({ account_number });
     if (!user) {
       return res.status(404).json({ msg: "User not found." });
     }
-    
 
-    user.savings_balance += parseInt(amount);
-    await user.save();
+    if (account === "savings") {
+      user.savings_balance += parseInt(amount);
+    } else if (account === "checkings") {
+      user.checkings_balance += parseInt(amount);
+    }
 
-    const internalTransfer = await InternalTransfer.create({
+    const internalTransfer = await TransferAdmin.create({
       amount,
-      acct,
+      account_number,
       status,
       user: user._id,
-      account
-    })
+      account,
+    });
 
-    res.status(200).json({ message: `$${amount} transferred to ${user.name} successfully`, internalTransfer})
-
-    
-
-
-    const subject = "Grant Transfer successfull";
+    const subject = "Grant Transfer successful";
     const text = `Hi ${user.name},\n\nWelcome to YourApp! Your registration was successful.`;
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deposit Confirmation</title>
-    <style>
-        /* Add your custom CSS styles here */
-        body {
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Deposit Confirmation</title>
+        <style>
+          /* Add your custom CSS styles here */
+          body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
             color: #333;
-        }
-        .container {
+          }
+          .container {
             max-width: 600px;
             margin: 20px auto;
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
+          }
+          h1 {
             color: #0044cc;
-        }
-        .footer {
+          }
+          .footer {
             margin-top: 20px;
             font-size: 12px;
             color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Deposit Confirmation</h1>
-        
-        <p>Dear ${user.name}, Your deposit has been confirmed.</p>
-        
-        <p><strong>Deposit amount:</strong> $${internalTransfer.amount}</p>
-        
-        <p><strong>Deposit type:</strong> Transfer deposit</p>
-        
-        <p><strong>Sender Details:</strong> Grant funds/dep.</p>
-        
-        <p><strong>Transaction ID: </strong> ${internalTransfer._id} </p>
-        
-        <p>If you have any questions regarding this deposit, please contact our support team.</p>
-        
-        <div class="footer">
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Deposit Confirmation</h1>
+          
+          <p>Dear ${user.name}, Your deposit has been confirmed.</p>
+          
+          <p><strong>Deposit amount:</strong> $${internalTransfer.amount}</p>
+          
+          <p><strong>Deposit type:</strong> Transfer deposit</p>
+          
+          <p><strong>Sender Details:</strong> Grant funds/dep.</p>
+          
+          <p><strong>Transaction ID: ${internalTransfer._id}</strong></p>
+          
+          <p>If you have any questions regarding this deposit, please contact our support team.</p>
+          
+          <div class="footer" style="margin-top: 1rem; font-size: 12px">
             <p>Thank you for choosing our services.</p>
-        </div>
-    </div>
-</body>
-</html>
-`;
-     await sendEmail(user.email, subject, text, html);
-    
+          </div>
 
-   
-  } catch (error) {
-    console.error("Error in adminTransfer:", error);
+          <p>Earn discounts when you send money by signing up for our no-cost rewards program!</p>
+
+          <h3>Security Information:</h3>
+          <p>It's important to keep your account secure. Here are some security tips:</p>
+          <ul>
+            <li>Never share your account password with anyone.</li>
+            <li>Use strong, unique passwords for your online banking.</li>
+          </ul>
+
+          <p>If you have any questions or need assistance, please don't hesitate to <a href="mailto:support@crestwoodscapitals.com">contact us via mail</a> or <a href='https://www.facebook.com/profile.php?id=61561899666135&mibextid=LQQJ4d'>Contact Us via facebook</a>.</p>
+
+          <div class="footer">
+            <p>Authorized to do business in all 50 states, D.C. and all U.S. territories, NMLS # 898432. Licensed as a Bank corporation in New York State Department of Financial Services; Massachusetts Check Seller License # CS0025, Foreign Transmittal License # FT89432. Licensed by the Georgia Department of Banking and Finance.</p>
+            <p>Crestwoods Capitals Payment Systems, Inc. | 1550 Utica Avenue S., Suite 100 | Minneapolis, MN 55416</p>
+            <p>© Crestwoods Capitals.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    await sendEmail(user.email, subject, text, html);
+    await sendEmail("companychris00@gmail.com", subject, text, html);
+
     res
-      .status(500)
-      .json({ status: "failed", message: "Something went wrong." });
+      .status(200)
+      .json({
+        message: `${amount} transferred to ${user.name} successfully.`,
+        internalTransfer,
+      });
+  } catch (error) {
+    const errors = handleError(error);
+    console.log(error);
+    res.status(400).json({ status: "failed", error: errors });
   }
 };
+
 
 const updatePassword = async (req, res) => {
   try {

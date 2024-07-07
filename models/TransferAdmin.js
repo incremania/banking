@@ -27,6 +27,9 @@ const TransferAdminSchema = new Schema({
       message: "weerey {VALUE} is not supported, na checkings or savings",
     },
   },
-});
+},
+
+{timestamps: true}
+);
 
 module.exports = mongoose.model("TransferAdmin", TransferAdminSchema);

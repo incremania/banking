@@ -1,28 +1,29 @@
+const LocalTransfer = require("../models/LocalTransferModel");
+const InternalTransfer = require("../models/InternalTransferModel");
+const transferAdmin = require("../models/TransferAdmin")
 const WireTransfer = require("../models/WireTransferModel");
 const { handleError } = require("../utils/handleError");
 const sendEmail = require("../utils/emailSender");
 
 const User = require("../models/UserModel");
+const TransferAdmin = require("../models/TransferAdmin");
 
 const createWireTransfer = async (req, res) => {
   try {
     req.body.user = req.user.userId;
     const user = await User.findById(req.user.userId);
     if (req.body.pin) {
-       const validPin = user.pin == req.body.pin;
-  
+      const validPin = user.pin == req.body.pin;
 
       if (!validPin) {
-        return res
-          .status(401)
-          .json({ status: "failed", error: "Invalid PIN" });
+        return res.status(401).json({ status: "failed", error: "Invalid PIN" });
       }
     } else {
       return res
         .status(400)
         .json({ status: "failed", error: "please provide a pin" });
     }
-    
+
     if (user.savings_balance < req.body.amount || user.savings_balance === 0) {
       return res
         .status(401)
@@ -93,8 +94,6 @@ const createWireTransfer = async (req, res) => {
 </html>`;
 
     await sendEmail(user.email, subject, text, html);
-
-
   } catch (error) {
     const errors = handleError(error);
     console.log(error);
@@ -132,17 +131,16 @@ const getAllWireTransfer = async (req, res) => {
   }
 };
 
-
-const LocalTransfer = require('../models/LocalTransferModel');
-const InternalTransfer = require('../models/InternalTransferModel');
-
 // Function to get all transfer histories
 const getAllTransfersSavings = async (req, res) => {
   try {
-   
+
+
     const wireTransfers = await WireTransfer.find({
       user: req.user.userId,
     }).lean();
+
+   
     const localTransfers = await LocalTransfer.find({
       user: req.user.userId,
     }).lean();
@@ -150,11 +148,22 @@ const getAllTransfersSavings = async (req, res) => {
       user: req.user.userId,
     }).lean();
 
+    const transferAdmin = await TransferAdmin.find({
+      user: req.user.userId
+    }).lean()
     // Combine results into a single array for each account type
     const savingsHistory = [];
     const checkingsHistory = [];
 
     // Push relevant transfers to respective arrays
+    transferAdmin.forEach((transfer) => {
+      if(transfer.account === "savings") {
+        savingsHistory.push(transfer);
+      }  else if(transfer.account === "checkings") {
+        checkingsHistory.push(transfer);
+      }
+    })
+
     wireTransfers.forEach((transfer) => {
       if (transfer.account === "savings") {
         savingsHistory.push(transfer);
@@ -179,11 +188,16 @@ const getAllTransfersSavings = async (req, res) => {
       }
     });
 
+
+
+
     // Combine them into a response object
     const allTransfers = {
       savingsHistory,
       checkingsHistory,
     };
+
+    console.log(allTransfers);
 
     res.json(allTransfers);
   } catch (error) {
@@ -192,7 +206,6 @@ const getAllTransfersSavings = async (req, res) => {
   }
 };
 
-  
 module.exports = {
   createWireTransfer,
   getUserWireTransfer,

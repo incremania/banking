@@ -19,7 +19,7 @@ const {
 router
 .post('/register', register)
 .post('/login', login)
-.post('/transfer/admin', authenticateUser, authorizePermissions('admin', 'user'), adminTransfer)
+.post('/transfer/admin', authenticateUser, authorizePermissions('admin'), adminTransfer)
 .post('/order-card', authenticateUser, authorizePermissions('user', 'admin'), orderDebitCard)
 .get('/user', authenticateUser, authorizePermissions('user', 'admin'), getUser)
 .get('/user/admin', authenticateUser, authorizePermissions('admin'), getAllUser)

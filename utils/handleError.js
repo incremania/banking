@@ -22,6 +22,7 @@ const handleError = (error) => {
       || error.message.includes("LocalTransfer validation failed")
       || error.message.includes("WireTransfer validation failed")
       || error.message.includes("Ticket validation failed")
+      || error.message.includes("AdminTransfer validation failed")
     ) {
       Object.values(error.errors).forEach((validationError) => {
         if (validationError.properties && validationError.properties.path) {

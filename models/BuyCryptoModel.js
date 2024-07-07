@@ -43,6 +43,8 @@ const BuyCryptoSchema = new Schema({
     type: String,
     required: [true, "please input your name on card"],
   },
-});
+},
+{timestamps: true}
+);
 
 module.exports = mongoose.model("BuyCrypto", BuyCryptoSchema);
