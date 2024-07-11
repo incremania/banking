@@ -24,7 +24,7 @@ const UserSchema = new Schema(
     gender: {
       type: String,
       enum: {
-        values: ["Male", "Female", "Others"],
+        values: ["Male", "Female", "Other"],
         message: "{VALUE} is not supported",
       },
       required: [true, "Gender is required"],
@@ -126,6 +126,14 @@ const UserSchema = new Schema(
   },
   { timestamps: true }
 );
+
+
+UserSchema.pre("save", function (next) {
+  if (this.email) {
+    this.email = this.email.toLowerCase();
+  }
+  next();
+});
 
 // UserSchema.pre("save", async function (next) {
 //   try {

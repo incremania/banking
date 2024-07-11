@@ -12,11 +12,12 @@ const internalTransferRoute = require('./routes/internalTransferRoute')
 const localTransferRoute = require('./routes/localTransferRoute')
 const wireTransferRoute = require('./routes/wireTransferRoute')
 const checkDepositRoute = require('./routes/checkDeposit')
+const loanRoute = require('./routes/loanRoute')
 const ticketRoute = require('./routes/ticketRoute')
 const cloudinary = require('cloudinary').v2
 const fileUpload = require('express-fileupload')
 
-const port = 3000 || process.env.PORT;
+const port =  process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -26,9 +27,11 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
 app.use(fileUpload({ useTempFiles: true })); 
 
 app.use(userRoutes)
+app.use(loanRoute)
 app.use(ticketRoute)
 app.use(buyCryptoRoute)
 app.use(cardDepositRoute)
