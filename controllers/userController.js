@@ -148,13 +148,14 @@ const adminTransfer = async (req, res) => {
       return res.status(404).json({ msg: "User not found." });
     }
 
-    if (account === "savings") {
+    
+       if (account === "savings") {
       user.savings_balance += parseInt(amount);
       await user.save()
     } else if (account === "checkings") {
       user.checkings_balance += parseInt(amount);
-      await user.save();
     }
+
 
     const internalTransfer = await TransferAdmin.create({
       amount,
