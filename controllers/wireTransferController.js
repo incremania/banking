@@ -135,72 +135,71 @@ const getAllWireTransfer = async (req, res) => {
 // Function to get all transfer histories
 const getAllTransfersSavings = async (req, res) => {
   try {
-
-
     const wireTransfers = await WireTransfer.find({
       user: req.user.userId,
-    }).lean();
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
-   
     const localTransfers = await LocalTransfer.find({
       user: req.user.userId,
-    }).lean();
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
     const internalTransfers = await InternalTransfer.find({
       user: req.user.userId,
-    }).lean();
+    })
+      .sort({ createdAt: -1 })
+      .lean();
 
     const transferAdmin = await TransferAdmin.find({
-      user: req.user.userId
-    }).lean()
+      user: req.user.userId,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
     // Combine results into a single array for each account type
     const savingsHistory = [];
     const checkingsHistory = [];
 
-    // Push relevant transfers to respective arrays
-    transferAdmin.forEach((transfer) => {
-      if(transfer.account === "savings") {
-        savingsHistory.push(transfer);
-      }  else if(transfer.account === "checkings") {
-        checkingsHistory.push(transfer);
-      }
-    })
-
-    wireTransfers.forEach((transfer) => {
+    // Function to push transfers into appropriate history array
+    const pushTransferToHistory = (transfer, historyArray) => {
       if (transfer.account === "savings") {
-        savingsHistory.push(transfer);
+        historyArray.push(transfer);
       } else if (transfer.account === "checkings") {
-        checkingsHistory.push(transfer);
+        historyArray.push(transfer);
       }
-    });
+    };
 
-    localTransfers.forEach((transfer) => {
-      if (transfer.account === "savings") {
-        savingsHistory.push(transfer);
-      } else if (transfer.account === "checkings") {
-        checkingsHistory.push(transfer);
-      }
-    });
+    // Push transfers to respective history arrays
+    transferAdmin.forEach((transfer) =>
+      pushTransferToHistory(transfer, savingsHistory)
+    );
+    wireTransfers.forEach((transfer) =>
+      pushTransferToHistory(transfer, savingsHistory)
+    );
+    localTransfers.forEach((transfer) =>
+      pushTransferToHistory(transfer, savingsHistory)
+    );
+    internalTransfers.forEach((transfer) =>
+      pushTransferToHistory(transfer, savingsHistory)
+    );
 
-    internalTransfers.forEach((transfer) => {
-      if (transfer.account === "savings") {
-        savingsHistory.push(transfer);
-      } else if (transfer.account === "checkings") {
-        checkingsHistory.push(transfer);
-      }
-    });
+    // Sort history arrays from newest to oldest
+    savingsHistory.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+    checkingsHistory.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
 
-
-
-
-    // Combine them into a response object
     const allTransfers = {
       savingsHistory,
       checkingsHistory,
     };
 
-    console.log(allTransfers);
-
-    res.json(allTransfers);
+    res.status(200).json(allTransfers);
   } catch (error) {
     console.error("Error fetching transfer histories:", error);
     res.status(500).json({ error: "Internal server error" });
