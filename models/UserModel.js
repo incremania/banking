@@ -97,7 +97,12 @@ const UserSchema = new Schema(
       type: Number,
       default: 0,
     },
-    account_number: {
+    checkings_account_number: {
+      type: String,
+      required: true,
+    },
+
+    savings_account_number: {
       type: String,
       required: true,
     },

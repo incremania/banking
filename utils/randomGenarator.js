@@ -18,6 +18,16 @@ function generateRandomRoutingNumber() {
   return `${fedReserveZone}${fedReserveBranch}${bankSpecific}`;
 }
 
+function generateRandomAccountNumberCheckings() {
+  const bankIdentifier = "2390";
+  const accountSpecific = Math.floor(Math.random() * 100000000)
+    .toString()
+    .padStart(8, "0");
+  const checkDigit = Math.floor(Math.random() * 10);
+
+  return `${bankIdentifier}${accountSpecific}${checkDigit}`;
+}
+
 function generateRandomCardNumber() {
   const iin = "424242";
   const accountNumber = Math.floor(Math.random() * 10000000000)
@@ -37,13 +47,11 @@ function generateRandomExpirationDate() {
   return `${month.toString().padStart(2, "0")}/${year.toString().slice(-2)}`;
 }
 
-
-
-
 module.exports = {
   generateRandomAccountNumber,
   generateRandomRoutingNumber,
   generateRandomCardNumber,
   generateRandomCVV,
   generateRandomExpirationDate,
+  generateRandomAccountNumberCheckings,
 };

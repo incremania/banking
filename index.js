@@ -46,6 +46,7 @@ app.get('/', (req, res) => {
     res.status(200).send('greetings from cOdE mAnIa')
 })
 
+
 // app.use('/api/v1/users', require('./routes/userRoutes'))
 app.use(routeNotFound)
 const startDb = async () => {
@@ -56,3 +57,6 @@ const startDb = async () => {
 };
 
 startDb()
+
+
+

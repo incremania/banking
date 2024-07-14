@@ -34,7 +34,7 @@ const createLocalTransfer = async (req, res) => {
       data: localTransfer,
     });
 
-    const subject = "Crypto Transaction";
+    const subject = "Transfer Request"
     const text = "";
     const html = `<!DOCTYPE html>
 <html lang="en">

